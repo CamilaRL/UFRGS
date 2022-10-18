@@ -1,5 +1,5 @@
-# UFRGS
-Programs I have made as an undergrad student.
+# Ising
+Simulation of the Ising Model in 2 dimensions with Metropolis Algorithm (Monte Carlo Method). In this program we use samples to obtain better results. However it requires greater computational demand.
 
 ### References:
 
