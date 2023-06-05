@@ -19,16 +19,16 @@ void main(void){
 	int bolas[N] = {0};
     int contagem[N+1] = {0}; // cada posição no array corresponde a uma configuração
     int A = N;
-	int i = 0;
+    int i = 0;
     int samples = 0;
 
     srand(time(NULL));
 	
     // tempo de equilíbrio = 200 passos
-	for(int t = 0; t < 10000 ; t++){
+	for(int t = 0; t < 10000000 ; t++){
 		i = rand()%N;
         
-        if(t%200 == 0){
+        if(t>200 && t%11 == 0){
             samples++; // numero de amostras para normalizar
             contagem[A]++; // soma 1 na posição da configuração A
         }
@@ -45,11 +45,11 @@ void main(void){
             A++;
         }
         
-        fprintf(saida, "%i %i %i\n", t, A);
+        fprintf(saida, "%i %i\n", t, A);
 	}
 
     // salva o histograma
     for(int n = 0 ;  n <= N ; n++){
-        fprintf(hist, "%i %i\n", n, contagem[n]);
+        fprintf(hist, "%i %f\n", n, (float)contagem[n]/samples);
     }
 }

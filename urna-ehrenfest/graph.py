@@ -14,7 +14,7 @@ def readFile(filename):
             line = line.split(" ")
 
             t.append(int (line[0]))
-            A.append(int (line[1])/10000)
+            A.append(float (line[1].strip('\n')))
     
     return t, A
 
@@ -35,8 +35,8 @@ n, hist = readFile("hist.txt")
 dist = binomial(100, n)
 
 
-plt.plot(n, hist, 'b.', label="Simulação")
-plt.plot(n, dist, 'k-', label='Distribuição Binomial')
+plt.plot(n[20:80], hist[20:80], 'b.', label="Simulação")
+plt.plot(n[20:80], dist[20:80], 'k-', label='Distribuição Binomial')
 plt.legend()
 plt.title("Distribuição de Bolas na Caixa")
 plt.xlabel("n")
