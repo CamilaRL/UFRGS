@@ -8,11 +8,11 @@
 void main(void){
 
     FILE *saida;
-    saida = fopen("./saida.txt", "w");
+    saida = fopen("./saida2.txt", "w");
     fprintf(saida, "t A\n");
 
     FILE *hist;
-    hist = fopen("./hist.txt", "w");
+    hist = fopen("./hist2.txt", "w");
     fprintf(hist, "t hist\n");
 
 	// A=0 B=1
@@ -22,7 +22,8 @@ void main(void){
     int i = 0;
     int samples = 0;
 
-    srand(time(NULL));
+    long t = time(NULL);
+    srand(t);
 	
     // tempo de equilíbrio = 200 passos
 	for(int t = 0; t < 10000000 ; t++){
@@ -44,9 +45,12 @@ void main(void){
             bolas[i] = 0;
             A++;
         }
-        
+
         fprintf(saida, "%i %i\n", t, A);
 	}
+
+    fprintf(saida, "samples: %d tempo: %d N: %d seed: %ld\n", samples, 10000000, N, t);
+    fprintf(hist, "samples: %d tempo: %d N: %d seed: %ld\n", samples, 10000000, N, t);
 
     // salva o histograma
     for(int n = 0 ;  n <= N ; n++){
