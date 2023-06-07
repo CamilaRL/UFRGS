@@ -12,7 +12,7 @@ def readFile(filename):
         r1 = []
         r2 = []
 
-        lines = f.readlines()[1:]
+        lines = f.readlines()[2:]
         
         for line in lines:
             line = line.split(" ")
@@ -25,35 +25,46 @@ def readFile(filename):
     return N, P, r1, r2
 
 
-N, P, r1, r2 = readFile('P.txt')
+N, P, r1, r2 = readFile('Pi-buf.txt')
 
-theta = np.arange(0, np.pi, 100)
+'''
+theta = np.arange(0, np.pi, 0.01)
 y = np.sin(theta)
 
 plt.plot(theta, y, color='black')
 plt.scatter(r1, r2, s=0.1)
 plt.xlabel('theta')
 plt.ylabel('1-y')
-plt.show()
+plt.show()'''
 
+fig = plt.figure(figsize=(15,5))
 
-plt.scatter(N, P, s=1)
+plt.subplot(131)
+plt.scatter(N[1000:], P[1000:], s=1)
+plt.axhline(y = np.pi, color = 'k', linestyle = '-')
 plt.ylabel('2N/n')
 plt.xlabel('N')
-plt.show()
 
 P1 = np.abs(np.array(P) - np.pi)
-plt.scatter(N[80:], P1[80:], s=1)
+
+plt.subplot(132)
+plt.scatter(N[1000:], P1[1000:], s=1)
+plt.axhline(y = 0, color = 'k', linestyle = '-')
 plt.ylabel('|2N/n - PI|')
 plt.xlabel('N')
-plt.show()
 
 y = np.power(np.array(N), -0.5)
+
+plt.subplot(133)
 plt.plot(N, P1)
-plt.plot(N, y)
+plt.plot(N, y, label='x^(-1/2)')
 plt.ylabel('log(|2N/n - PI|)')
 plt.xlabel('log(N)')
 plt.yscale('log')
 plt.xscale('log')
+plt.legend()
+
+plt.suptitle('Estimativa do valor de pi - Método de Buffon')
+plt.tight_layout()
 plt.show()
 
