@@ -34,7 +34,7 @@ void main(void){
             n++;
         }
 		// Inicio de amostragem
-        if(N > 10000 && N%11 == 0){
+        if(N%11 == 0){
             pi = 2.*N/n;
 
             fprintf(saida, "%d %f %f %f\n", N, pi, r1, r2);
