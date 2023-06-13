@@ -36,7 +36,7 @@ void main(void){
 			n++;
 		}
 		// Inicio de amostragem
-		if(N > 1000 && N%11 == 0){
+		if(N%11 == 0){
             I = (float) n/N;
 
             fprintf(saida, "%d %f %f %f\n", N, I, x, y);
