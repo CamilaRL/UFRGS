@@ -29,21 +29,19 @@ void main(void){
     float xaux = x;
     float yaux = y;
 
-    float r;
+    float r = 0.3;
     float theta;
     int nq = 0;
     int nc = 0;
 	
-	long seed = 123450; //time(NULL);
-
-	printf("x y xaux yaux r1 theta\n");
+	long seed = 123450;//time(NULL);
     
     for(int samp = 0 ; samp < smax ; samp++){
 
         printf("Amostra %d", samp);
 
         // Semente do gerador de numeros aleatorios
-       	seed = seed + 3;
+		seed = seed + 3;
 		srand(seed);
 
         fprintf(saida, "\n#Sample: %d Seed: %ld Nmax: %d\n", samp, seed, Nmax);
@@ -55,8 +53,7 @@ void main(void){
                 xaux = x;
                 yaux = y;
             
-                // Sorteio de passo
-				r = 0.3 * (float) rand() / (float)(RAND_MAX/1.);  //distancia
+                // Sorteio do passo
 				theta = 2*M_PI * (float) rand() / (float)(RAND_MAX/1.); // angulo
 
                 xaux += r*cos(theta);
