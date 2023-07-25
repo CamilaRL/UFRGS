@@ -2,166 +2,198 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-// unison
+
 #define L 50 // lateral da caixa
 #define N 1000 // numero de passos
 
 int x = 0, y = 0; // [x, y]
 int s[L*L] = {0}; // rede quadrada. onde o caminhante estiver é 1
+int by = 0; // condicao de contorno em y
+int bx = 0; // condicao de contorno em x
 
-void Walker(FILE *file);
-int Gameover(int w);
+int walk(int c, int w);
+int bcy(int w);
+int bcx(int w);
+int TemSaida(int w);
 
 void main(void){
 
-	long seed = 1234567;
+    long seed = 1234567;
+    srand(seed);
 
 	FILE *saida;
 	saida = fopen("./s.txt", "w");
-
-	// Amotragem
-	for(int samp = 0 ; samp < 1 ; samp++){
-
-		seed += 2;
-		srand(seed);
-		fprintf(saida, "#Amostra %ld L %d Nmax %d\n", seed, L, N);
-	    fprintf(saida, "#N w x y dr2\n");
-
-		Walker(saida);
-	}
-
-    fclose(saida);  
-}
-
-void Walker(FILE *file){
-
+    
+    fprintf(saida, "# Amostra %ld L %d Nmax %d\n", seed, L, N);
+	fprintf(saida, "# N w x y dr2 bc\n");
+    
+    int c;
+    int n = 0;
     int w = 30;
     int waux = w;
-	int c;
-    double dr2 = 0.0;
-    int bc = 0; // 0 se não cruzou os limites da caixa | 1 se cruzou os limites da caixa
-    int gameover = 0; // 0 a cobrinha n travou | 1 a cobrinha travou
-    int n = 0;
-
-    x = 0;
-    y = 0;
+    double dr2 = 0;
+    int bc = 0;
+    int continua = 0; // 0 é sim | 1 é nao
 
     do{
+        c = (int) rand()%4;
+        
+        waux = walk(c, w);
 
-        // Verifica se já passou pelo sítio
         if(s[waux] == 0){
 
+            bc = bcx(w) + bcy(w);
             w = waux;
             s[w] = 1;
+            
+            if(c == 0){
+                y = y + 1; // sobe
+            }
+            else if(c == 1){
+                y = y - 1; // desce
+            }
+            else if(c == 2){
+                x = x + 1; // direita
+            }
+            else if(c == 3){
+                x = x - 1; // esquerda
+            }
+
             dr2 = pow(x,2) + pow(y,2);
 
-            fprintf(file, "%d %d %d %d %f %d\n", n, w, x, y, dr2, bc);
+            fprintf(saida, "%d %d %d %d %f %d\n", n, w, x, y, dr2, bc);
 
             n++;
         }
-
-        c = (int) rand()%4;
         
-        if(c == 0){
-            // sobe
-            y = y + 1;
+        continua = TemSaida(w);
 
-            if(w < L){
-            // se estiver na primeira linha
-                waux = w - L + (L*L);
-                bc = 1;
-            }
-            else{
-                waux = w - L;
-                bc = 0;
-            }
-        }
-        else if(c == 1){
-            // desce
-            y = y - 1;
+    }while(n < N && continua == 0);
 
-            if(w >= (L*L)-L){
-                // se estiver na última linha
-                waux = (w%L);
-                bc = 1;
-            }
-            else{
-                waux = w + L;
-                bc = 0;
-            }
-        }
-        else if(c == 2){
-            // direita
-            x = x + 1;
 
-            if(w%L == L-1){
-                // se estiver na última coluna
-                waux = w - L + 1;
-                bc = 1;
-            }
-            else{
-                waux = w + 1;
-                bc = 0;
-            }
-        }
-        else if(c == 3){
-            // esquerda
-            x = x - 1;
-
-            if(w%L == 0){
-                // se estiver na primeira coluna
-                waux = w + L - 1;
-                bc = 1;
-            }
-            else{
-                waux = w - 1;
-                bc = 0;
-            }
-        }
-        
-        gameover = Gameover(w);
-        
-    }while(n < N && gameover == 0);
+    fclose(saida);
 }
 
-int Gameover(int w){
+int walk(int c, int w){
 
-    int c = 0;
-    int sum = 0;
+    by = bcy(w);
+    bx = bcx(w);
     
-    // superior
+    if(c == 0){
+        //sobe
+        if(by == 1){                                      // Talvez dê para tirar esses if de bc mudando a forma que calculo de waux e b
+            // se estiver na primeira linha
+                w = w - L + (L*L);
+            }
+            else{
+                w = w - L;
+            }
+        }
+    else if(c == 1){
+            // desce
+
+            if(by == 2){
+                // se estiver na última linha
+                w = (w%L);
+            }
+            else{
+                w = w + L;
+            }
+        }
+    else if(c == 2){
+            // direita
+
+            if(bx == 3){
+                // se estiver na última coluna
+                w = w - L + 1;
+            }
+            else{
+                w = w + 1;
+            }
+        }
+    else if(c == 3){
+            // esquerda
+
+            if(bx == 4){
+                // se estiver na primeira coluna
+                w = w + L - 1;
+            }
+            else{
+                w = w - 1;
+            }
+        }
+
+    return w;
+}
+
+int bcy(int w){
+    /* 
+       0 : sem condicao de contorno
+       1 : primeira linha
+       2 : ultima linha
+    */
+
+    int loc = 0;
+
     if(w < L){
-        sum += s[w - L + (L*L)];
+        // se estiver na primeira linha
+        loc = 1;
     }
-    else{
-        sum += s[w-L];
+    else if(w >= (L*L)-L){
+        // se estiver na última linha
+        loc = 2;
     }
-    // inferior
-    if(w >= (L*L)-L){
-        sum += s[w%L];
-    }
-    else{
-        sum += s[w+L];
-    }
-    // esquerda
-    if(w%L == 0){
-        sum += s[w + L - 1];
-    }
-    else{
-        sum += s[w-1];
-    }
-    // direita
+
+    return loc;
+}
+
+int bcx(int w){
+    /* 
+       0 : sem condicao de contorno
+       3 : ultima coluna
+       4 : primeira coluna
+    */
+
+    int loc = 0;
+
     if(w%L == L-1){
-        sum += s[w - L + 1];
+        // se estiver na última coluna
+        loc = 3;
     }
-    else{
-        sum += s[w+L];
+    else if(w%L == 0){
+        // se estiver na primeira coluna
+        loc = 4;
     }
-    
-    
+
+    return loc;
+}
+
+int TemSaida(int w){
+
+    int boolean = 0;
+    int sum = 0;
+    int by = bcy(w);
+    int bx = bcx(w);
+
+    if((by + bx) == 0){
+        sum = s[w+L] + s[w-L] + s[w-1] + s[w+1];
+    }
+    if(by == 1){
+        sum += s[w+L] + s[w - L + (L*L)];
+    }
+    if(by == 2){
+        sum += s[w%L] + s[w-L];
+    }
+    if(bx == 3){
+        sum += s[w-1] + s[w + 1 - L];
+    }
+    if(bx == 4){
+        sum += s[w - 1 + L] + s[w-1];
+    }
+
     if(sum == 4){
-        c = 1;
+        boolean = 1;
     }
-    
-    return c;
+
+    return boolean;
 }
