@@ -35,8 +35,8 @@ def nN(Nc, Ns, ncc, nqc, ncs, nqs, title):
     nNc = ncc/nqc
     nNs = ncs/nqs
 
-    plt.plot(Nc[:], nNc[:], label='Com Rejeição')
-    plt.plot(Ns[:], nNs[:], label='Sem Rejeição')
+    plt.plot(Nc[0:], nNc[:], label='Com Rejeição')
+    plt.plot(Ns[0:], nNs[:], label='Sem Rejeição')
     plt.axhline(y = np.pi/4, color = 'k', linestyle = '-', label=r'$\frac{\pi}{4}$')
     plt.ylabel('n/N')	
     plt.xlabel('N')
@@ -56,16 +56,16 @@ def histx(xc, xs):
     plt.xlabel('x')
     plt.ylabel('Frequência')
     plt.title('Com Rejeição')
-    plt.ylim(bottom=0, top=1200)
+    plt.ylim(bottom=0, top=1500)
 
     plt.subplot(122)
     plt.hist(hist_s, bins=100)
     plt.xlabel('x')
     plt.ylabel('Frequência')
     plt.title('Sem Rejeição')
-    plt.ylim(bottom=0, top=1200)
+    plt.ylim(bottom=0, top=1500)
 
-    plt.suptitle('1 Amostra com passo variável')
+    plt.suptitle('1 Amostra com passo fixo')
     plt.tight_layout()
     plt.show()
     
@@ -89,12 +89,13 @@ def histgauss(ncc, nqc, ncs, nqs):
 
     plt.subplot(122)
     plt.hist(hist_s, bins=100)
-    #plt.axvline(x=np.pi, color='k', linestyle='-', label=r'$\pi$')
+    plt.axvline(x=np.pi, color='k', linestyle='-', label=r'$\pi$')
     plt.xlabel('x')
     plt.ylabel('Frequência')
     plt.title('Sem Rejeição')
+    plt.legend()
 
-    plt.suptitle('Média de amostras com passo variável')
+    plt.suptitle('Média de amostras com passo fixo')
     plt.tight_layout()
     plt.show()
 
@@ -111,9 +112,9 @@ aNc, anqc, ancc, axc, ayc = np.loadtxt('./sampcr.txt', unpack=True, comments='#'
 aNs, anqs, ancs, axs, ays = np.loadtxt('./sampsr.txt', unpack=True, comments='#', max_rows=100002)
 
 
-#nN(aNc, aNs, ancc, anqc, ancs, anqs, '1 Amostra com passo variável')
-#histx(axc, axs)
+nN(aNc, aNs, ancc, anqc, ancs, anqs, '1 Amostra com passo fixo')
+histx(axc, axs)
 
-nN(Nc, Ns, ncc, nqc, ncs, nqs, 'Média de amostras com passo variável')
+nN(Nc, Ns, ncc, nqc, ncs, nqs, 'Média de amostras com passo fixo')
 histgauss(ncc, nqc, ncs, nqs)
 

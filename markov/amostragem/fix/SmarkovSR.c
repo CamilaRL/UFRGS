@@ -21,23 +21,21 @@ void main(void){
     FILE *amostra;
     amostra = fopen("./lastsr.txt", "w");
     fprintf(amostra, "#Sample Snq Snc Sx Sy\n");
-
     fprintf(amostra, "#Nmax: %d Total de amostras: %d\n", Nmax, smax);
 
-    
 	// Variaveis 1 simulacao
     float x = 0.5;
     float y = 0.5;
     float xaux = x;
     float yaux = y;
 
-    float r;
+    float r = 0.3;
     float theta;
     int nq = 0;
     int nc = 0;
-
+    
 	long seed = 123450;
-	
+
     printf("x y xaux yaux r1 theta\n");
 
 
@@ -47,7 +45,7 @@ void main(void){
 
 		// Semente do gerador de numeros aleatorios
     	seed = seed + 3;
-    	srand(seed);
+		srand(seed);
 
         fprintf(saida, "\n#Sample: %d Seed: %ld Nmax: %d\n", samp, seed, Nmax);
 	
@@ -56,8 +54,7 @@ void main(void){
     	    xaux = x;
     	    yaux = y;
 
-    	    // Sorteio dp passo
-			r = 0.3 * (float) rand() / (float)(RAND_MAX/1.);    //distancia
+    	    // Sorteio do passo
 			theta = 2*M_PI * (float) rand() / (float)(RAND_MAX/1.); // angulo
 	
     	    xaux += r*cos(theta);
