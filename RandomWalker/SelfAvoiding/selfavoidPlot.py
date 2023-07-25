@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def walkerPlot(slist, bc):
-    L = 20
+    L = 50
     x = []
     y = []
     
@@ -11,7 +11,7 @@ def walkerPlot(slist, bc):
 
     for i in range(len(slist)):
         
-        if(bc[i] == 1):
+        if(bc[i] != 0):
             x.append(np.asarray(xi) + 0.5)
             y.append(np.asarray(yi) + 0.5)
             xi = []
@@ -22,17 +22,16 @@ def walkerPlot(slist, bc):
 
         xi.append(slist[i]%L)
         yi.append(int(slist[i]/L))
-    
-    print(x)
+
     for i in range(len(x)):
-        plt.plot(x[i], y[i], color='blue')
+        plt.scatter(x[i], y[i], color='blue', s=1)
 
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('Posição do Caminhante - 1 amostra')
-    plt.grid(True)
-    plt.xticks(np.arange(0, 21, 1.0))
-    plt.yticks(np.arange(0, 21, 1.0))
+    plt.grid(True, linewidth=0.5)
+    plt.xticks(np.arange(0, 51, 1.0))
+    plt.yticks(np.arange(0, 51, 1.0))
     plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
 
