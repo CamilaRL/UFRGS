@@ -19,20 +19,24 @@ int TemSaida(int w);
 
 void main(void){
 
-    long seed = 1234567;
+    long seed = 1236253;
 
 	FILE *saida;
 	saida = fopen("./ssamp.txt", "w");
+	FILE *sistema;
+	sistema = fopen("./syst.txt", "w");
+
 	
     int c;
+	int count = 0;
 
-    for(int samp = 0 ; samp < 50 ; samp++){
+    for(int samp = 0 ; samp < 1000 ; samp++){
         
         seed = seed + 2;
         srand(seed);
 
         int w = (int) rand()%(L*L); // sorteia uma posição inicial
-        int waux = w;
+		int waux;
         int n = 0;
         double dr2 = 0;
         int bc = 0;
@@ -45,17 +49,19 @@ void main(void){
 		}
 		s[w] = 1;
 
-        fprintf(saida, "# Amostra %ld L %d Nmax %d\n", seed, L, N);
+        fprintf(saida, "# Amostra %d seed %ld L %d Nmax %d\n", samp, seed, L, N);
     	fprintf(saida, "# N w x y dr2 bc\n");
+		fprintf(saida, "%d %d %d %d %f %d\n", n, w, x, y, dr2, bc);
         printf("Amostra %d\n", samp);
         
         do{
             c = (int) rand()%4;
-            
+ 
             waux = walk(c, w);
-    
+
             if(s[waux] == 0){
     
+				n++;
                 bc = bcx(w) + bcy(w);
                 w = waux;
                 s[w] = 1;
@@ -78,23 +84,39 @@ void main(void){
 
                 fprintf(saida, "%d %d %d %d %f %d\n", n, w, x, y, dr2, bc);
 
-                n++;
+				count = 0;
+                
             }
-			/**if(samp == 9){
-			count++;
-			printf("%d %d %d %d %d\n", n, count, c, s[w], s[waux]);
-			
-			FILE *sistema;
-			sistema = fopen("./syst.txt", "w");
-			fprintf(sistema, "#w %d\n", w);
-			for(int i = 0 ; i < L*L ; i++){
-				fprintf(sistema, "%d %d\n", i, s[i]);
+			else{
+				count++;
 			}
-			break;
+			
+			if(w == 2400 && count > 100){
+				printf("PERDI %d %d %d %d %d %f %d\n", samp, n, w, x, y, dr2, c);
+				for(int i = 0 ; i < L*L ; i++){
+					fprintf(sistema, "%d %d\n", i, s[i]);
+				}
+				break;
+			}
+			/*if(samp == 489){
+				//printf("%d %d %d\n", n, c, waux, s[waux]);
+				fprintf(sistema, "#w %d\n", w);
+				for(int i = 0 ; i < L*L ; i++){
+					fprintf(sistema, "%d %d\n", i, s[i]);
+				}
+                printf("c %d\n", c);
+				if(count>0){
+					break;
+				}
 			}*/
-            continua = TemSaida(w);
-
+			
+			continua = TemSaida(w);
+            
         }while(n < N && continua == 0);
+		if(count != 0 && samp>480){
+			break;
+		}
+        printf("%d\n", n);
     }
 
     fclose(saida);
@@ -222,7 +244,9 @@ int TemSaida(int w){
 
     if(sum == 4){
         boolean = 1;
+        printf("sem saida ");
     }
+	printf("%d %d %d %d\n", sum, bx, by, w);
 
     return boolean;
 }
