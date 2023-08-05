@@ -3,37 +3,47 @@
 #include <math.h>
 #include <time.h>
 
-#define L 50 // lateral da caixa
-#define N 1000 // numero de passos
+#define L 50 				// lateral da caixa
+#define N 1000				// numero de passos
 
-int x = 0, y = 0; // [x, y]
-int s[L*L] = {0}; // rede quadrada. onde o caminhante estiver é 1
-int by = 0; // condicao de contorno em y
-int bx = 0; // condicao de contorno em x
+
+int xaux = 0, yaux = 0;		// posição (sem condicao de contorno)
+int bcaux = 0;				// condicao de contorno : 1 passou | 0 não pasou
+
+int s[L*L] = {0}; 			// rede quadrada. onde o caminhante estiver é 1
+int viz[L*L][4] = {0};		// matriz de vizinhos = [inferior, superior, esquerda, direita]
+
+
 
 int walk(int c, int w);
-int bcy(int w);
-int bcx(int w);
-int TemSaida(int w);
 
 void main(void){
 
-    long seed = 1234567;
+    long seed = 1237231;
     srand(seed);
 
 	FILE *saida;
-	saida = fopen("./s.txt", "w");
+	saida = fopen("./stest.txt", "w");
     
+	int c, waux;
+	int bc;						// condição de contorno do passo dado (impressa)
+	int n = 0;
+	int sum = 0;
+    int continua = 0;			// 0 é sim | 1 é nao
+	int x = 0, y = 0;
+    double dr2 = 0;
+	
+    int w = (int) rand()%(L*L); // sorteia uma posição inicial;
+	
+	s[w] = 1;
+	for(int i = 0 ; i < 4 ; i++){
+		viz[walk(i, w)][i] = s[w];
+	}
+
     fprintf(saida, "# Amostra %ld L %d Nmax %d\n", seed, L, N);
 	fprintf(saida, "# N w x y dr2 bc\n");
-    
-    int c;
-    int n = 0;
-    int w = 30;
-    int waux = w;
-    double dr2 = 0;
-    int bc = 0;
-    int continua = 0; // 0 é sim | 1 é nao
+	fprintf(saida, "%d %d %d %d %f %d\n", n, w, x, y, dr2, bc);
+
 
     do{
         c = (int) rand()%4;
@@ -42,31 +52,34 @@ void main(void){
 
         if(s[waux] == 0){
 
-            bc = bcx(w) + bcy(w);
+            n++;
+			
             w = waux;
+			bc = bcaux;
+			y = yaux;
+			x = xaux;
+			
             s[w] = 1;
-            
-            if(c == 0){
-                y = y + 1; // sobe
-            }
-            else if(c == 1){
-                y = y - 1; // desce
-            }
-            else if(c == 2){
-                x = x + 1; // direita
-            }
-            else if(c == 3){
-                x = x - 1; // esquerda
-            }
 
             dr2 = pow(x,2) + pow(y,2);
+			
+			for(int i = 0 ; i < 4 ; i++){
+				viz[walk(i, w)][i] = s[w];
+			}
 
             fprintf(saida, "%d %d %d %d %f %d\n", n, w, x, y, dr2, bc);
-
-            n++;
         }
         
-        continua = TemSaida(w);
+		yaux = y;
+		xaux = x;
+		
+        // avalia se tem saida
+		sum = viz[w][0] + viz[w][1] + viz[w][2] + viz[w][3];
+		
+		if(sum == 4){
+			continua = 1;
+			printf("Sem saida %d\n", n);
+		}
 
     }while(n < N && continua == 0);
 
@@ -74,126 +87,57 @@ void main(void){
     fclose(saida);
 }
 
-int walk(int c, int w){
 
-    by = bcy(w);
-    bx = bcx(w);
-    
-    if(c == 0){
-        //sobe
-        if(by == 1){                                      // Talvez dê para tirar esses if de bc mudando a forma que calculo de waux e b
-            // se estiver na primeira linha
-                w = w - L + (L*L);
-            }
-            else{
-                w = w - L;
-            }
+
+int walk(int c, int waux){
+
+    if(c == 0){				//sobe
+        if(waux < L){			// se estiver na primeira linha
+            waux = waux - L + (L*L);
+			bcaux = 1;
         }
-    else if(c == 1){
-            // desce
-
-            if(by == 2){
-                // se estiver na última linha
-                w = (w%L);
-            }
-            else{
-                w = w + L;
-            }
+        else{
+            waux = waux - L;
+			bcaux = 0;
         }
-    else if(c == 2){
-            // direita
+		yaux = yaux + 1;
+    }
+    else if(c == 1){		// desce
 
-            if(bx == 3){
-                // se estiver na última coluna
-                w = w - L + 1;
-            }
-            else{
-                w = w + 1;
-            }
+        if(waux >= (L*L)-L){	// se estiver na última linha
+            waux = (waux%L);
+			bcaux = 1;
         }
-    else if(c == 3){
-            // esquerda
+        else{
+            waux = waux + L;
+			bcaux = 0;
+        }	
+		yaux = yaux - 1;
+    }
+    else if(c == 2){		// direita
 
-            if(bx == 4){
-                // se estiver na primeira coluna
-                w = w + L - 1;
-            }
-            else{
-                w = w - 1;
-            }
+        if(waux%L == L-1){		// se estiver na última coluna
+            waux = waux - L + 1;
+			bcaux = 1;
         }
-
-    return w;
-}
-
-int bcy(int w){
-    /* 
-       0 : sem condicao de contorno
-       1 : primeira linha
-       2 : ultima linha
-    */
-
-    int loc = 0;
-
-    if(w < L){
-        // se estiver na primeira linha
-        loc = 1;
+        else{
+			waux = waux + 1;
+			bcaux = 0;
+        }	
+		xaux = xaux + 1;
     }
-    else if(w >= (L*L)-L){
-        // se estiver na última linha
-        loc = 2;
+    else if(c == 3){		// esquerda
+
+        if(waux%L == 0){		// se estiver na primeira coluna
+            waux = waux + L - 1;
+			bcaux = 1;
+        }
+		else{
+            waux = waux - 1;
+			bcaux = 0;
+        }	
+		xaux = xaux - 1;
     }
 
-    return loc;
-}
-
-int bcx(int w){
-    /* 
-       0 : sem condicao de contorno
-       3 : ultima coluna
-       4 : primeira coluna
-    */
-
-    int loc = 0;
-
-    if(w%L == L-1){
-        // se estiver na última coluna
-        loc = 3;
-    }
-    else if(w%L == 0){
-        // se estiver na primeira coluna
-        loc = 4;
-    }
-
-    return loc;
-}
-
-int TemSaida(int w){
-
-    int boolean = 0;
-    int sum = 0;
-    int by = bcy(w);
-    int bx = bcx(w);
-
-    if((by + bx) == 0){
-        sum = s[w+L] + s[w-L] + s[w-1] + s[w+1];
-    }
-    if(by == 1){
-        sum += s[w+L] + s[w - L + (L*L)];
-    }
-    if(by == 2){
-        sum += s[w%L] + s[w-L];
-    }
-    if(bx == 3){
-        sum += s[w-1] + s[w + 1 - L];
-    }
-    if(bx == 4){
-        sum += s[w - 1 + L] + s[w-1];
-    }
-
-    if(sum == 4){
-        boolean = 1;
-    }
-
-    return boolean;
+    return waux;
 }
