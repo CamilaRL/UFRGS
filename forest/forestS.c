@@ -5,7 +5,7 @@
 #include <time.h>
 #include <math.h>
 
-#define L 50
+#define L 150
 
 
 int s[L*L] = {0};			// sitio sem arvore (0) ou sitio com arvore (1)
@@ -19,87 +19,121 @@ bool TemVida();
 
 void main(void){
 	
-	FILE *fire;
+	/*FILE *fire;
 	fire = fopen("fire.txt", "w");
 	fprintf(fire, "# Sitios que pegaram fogo a cada tempo");
 	
 	FILE *forest;
 	forest = fopen("forest.txt", "w");
 	fprintf(forest, "# Inicializacao da floresta (0 = sem arvore , 1 = com arvore , 2 = com fogo)\n");
-	fprintf(forest, "# sitio estado\n");
+	fprintf(forest, "# sitio estado\n");*/
+	
+	FILE *time;
+	time = fopen("time150.txt", "w");
+	fprintf(time, "# Tempo de simulação para diferentes p\n");
 	
 	bool temvida = true;
 	int t = 0;
 	int wviz;
+	long seed = 12345671;
 	
-	// inicializao de arvores aleatorias conforme p
-	double p = 0.5;
 	
-	for(int i = 0 ; i < L*L ; i++){
+	for(int samp = 0 ; samp < 100 ; samp++){
 		
-		double r = (double) rand() / (double)(RAND_MAX/1.);
+		seed = seed + 2;
+		srand(seed);
 		
-		if(r < p){
-			
-			s[i] = 1;
-			
-			if(i < L){
-				f[i] = 1; 		// fogo nas arvores da primeira linha
-			}
-			
-			// atualiza os vizinhos do sitio
-			for(int v = 0 ; v < 4 ; v++){
-				mviz[sitio(v, i)][v] = f[i];
-			}
-		}
+		printf("Amostra %d", samp);
+		fprintf(time, "#Amostra %d seed %ld\n", samp, seed);
 		
-		fprintf(forest, "%d %d\n", i, s[i]+f[i]);		// soma s[i]+f[i] = 2 (arvore com fogo) ou 1 (arvore sem fogo) ou 0 (sem arvore)
-	}
-	
-	fclose(forest);
-	
-	
-	// propagacao do fogo
+	double p = 0.3;
 	do{
-		fprintf(fire, "\n%d ", t);
-		printf("%d\n", t);
+		printf("# %f\n", p);
 		
-		for(int w = 0 ; w < L*L ; w++){
+		// inicializao de arvores aleatorias conforme p
+		for(int i = 0 ; i < L*L ; i++){
 			
-			// avalia se tem arvore sem fogo
-			if(s[w] == 1 && f[w] == 0){
-				
+			double r = (double) rand() / (double)(RAND_MAX/1.);
+		
+			if(r < p){
+			
+				s[i] = 1;
+			
+				if(i < L){
+					f[i] = 1; 		// fogo nas arvores da primeira linha
+				}
+			
+				// atualiza os vizinhos do sitio
 				for(int v = 0 ; v < 4 ; v++){
+					mviz[sitio(v, i)][v] = f[i];
+				}
+			}
+		
+			//fprintf(forest, "%d %d\n", i, s[i]+f[i]);		// soma s[i]+f[i] = 2 (arvore com fogo) ou 1 (arvore sem fogo) ou 0 (sem arvore)
+		}
+	
+		//fclose(forest);
+	
+	
+		// propagacao do fogo
+		do{
+			//fprintf(fire, "\n%d ", t);
+			
+			//printf("%d\n", t);
+			
+			for(int w = 0 ; w < L*L ; w++){
+				
+				// avalia se tem arvore sem fogo
+				if(s[w] == 1 && f[w] == 0){
 					
-					//checa se algum vizinho tem fogo
-					if(mviz[w][v] == 1){
-						f[w] = 1;
+					for(int v = 0 ; v < 4 ; v++){
+							
+						//checa se algum vizinho tem fogo
+						if(mviz[w][v] == 1){
+							f[w] = 1;
+						}
 					}
 				}
 			}
-		}
+			
+			// atualiza matriz de vizinhos
+			for(int w = 0 ; w < L*L ; w++){
+				
+				mviz[w][0] = f[sitio(1, w)];
+				mviz[w][1] = f[sitio(0, w)];
+				mviz[w][2] = f[sitio(3, w)];
+				mviz[w][3] = f[sitio(2, w)];
+			
+				//fprintf(fire, "%d ", s[w]+f[w]);
+			
+			
+			}
+			temvida = TemVida();
+			t++;
 		
-		// atualiza matriz de vizinhos
-		for(int w = 0 ; w < L*L ; w++){
-			
-			mviz[w][0] = f[sitio(1, w)];
-			mviz[w][1] = f[sitio(0, w)];
-			mviz[w][2] = f[sitio(3, w)];
-			mviz[w][3] = f[sitio(2, w)];
-			
-			//printf("%d %d %d %d %d %d %d\n", w, s[w], f[w], mviz[w][0], mviz[w][1], mviz[w][2], mviz[w][3]);
-			
-			fprintf(fire, "%d ", s[w]+f[w]);
-			
-			
-		}
-		temvida = TemVida();
-		printf("%s", temvida?"true":"false");
-		t++;
-		
-	}while(temvida == true);
+		}while(temvida == true);
 	
-	fclose(fire);
+	//fclose(fire);
+	
+	fprintf(time, "%f %d\n", p, t);
+	
+	t = 0;
+	p = p + 0.01;
+	temvida = true;
+	
+	for(int w = 0 ; w < L*L ; w++){
+		s[w] = 0;
+		f[w] = 0;
+		mviz[w][0] = 0;
+		mviz[w][1] = 0;
+		mviz[w][2] = 0;
+		mviz[w][3] = 0;
+	}
+	
+	
+	}while(p < 0.9);
+	
+	}
 }
 
 
