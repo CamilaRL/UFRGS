@@ -5,7 +5,7 @@
 #include <time.h>
 #include <math.h>
 
-#define L 150
+#define L 120
 
 
 int s[L*L] = {0};			// sitio sem arvore (0) ou sitio com arvore (1)
@@ -29,7 +29,7 @@ void main(void){
 	fprintf(forest, "# sitio estado\n");*/
 	
 	FILE *time;
-	time = fopen("time150.txt", "w");
+	time = fopen("time120.txt", "w");
 	fprintf(time, "# Tempo de simulação para diferentes p\n");
 	
 	bool temvida = true;
@@ -38,7 +38,7 @@ void main(void){
 	long seed = 12345671;
 	
 	
-	for(int samp = 0 ; samp < 100 ; samp++){
+	for(int samp = 0 ; samp < 1000 ; samp++){
 		
 		seed = seed + 2;
 		srand(seed);

@@ -11,30 +11,23 @@
 int s[L*L] = {0};			// sitio sem arvore (0) ou sitio com arvore (1)
 int f[L*L] = {0};			// sitio sem fogo (0) ou sitio com fogo (1)
 int mviz[L*L][4] = {0};		// matriz de vizinhanca (guarda o indice do sitio vizinho) = [inferior, superior, esquerda, direita]
-FILE *fire;
-FILE *forest;
 
 
 int sitio(int c, int waux);
 int queimada(double p);
 
 
-void main(void){
+void main(int argc, char *argv[]){
+
+	FILE *time;
+	time = fopen("./Output/time.txt", "a");
+	fprintf(time, "# Tempo de simulação para diferentes p\n");
 	
-	fire = fopen("./Output/fire.txt", "w");
-	fprintf(fire, "# Sitios que pegaram fogo a cada tempo");
-	
-	forest = fopen("./Output/forest.txt", "w");
-	fprintf(forest, "# Inicializacao da floresta (0 = sem arvore , 1 = com arvore , 2 = com fogo)\n");
-	fprintf(forest, "# sitio estado\n");
-	
-	/*FILE *time;
-	time = fopen("time50.txt", "w");
-	fprintf(time, "# Tempo de simulação para diferentes p\n");*/
-	
+	int t;
 	int wviz;
-	double p = 0.6;
-	srand(time(NULL));
+	double p = 0.3;
+	int seed = atof(argv[1]);
+	srand(seed);
 	
 	// inicializa rede de vizinhos
 	for(int i = 0 ; i < L*L ; i++){
@@ -44,16 +37,24 @@ void main(void){
 		}
 	}
 	
-	int t = queimada(p);
-	printf("Tempo %d\n", t);
 	
+	do{
+		t = queimada(p);
+		fprintf(time, "%f %d\n", p, t);
+		
+		p = p + 0.01;
+		//printf("p %f\n", p);
+		
+	}while(p < 0.9);
+	
+	fclose(time);
 }
 	
 int queimada(double p){
 	
 	int fogoEspalhou;
 	int t = 0;
-	fprintf(fire, "\n%d ", t);
+	
 	// inicializao de arvores aleatorias conforme p
 	for(int i = 0 ; i < L*L ; i++){
 		
@@ -71,18 +72,15 @@ int queimada(double p){
 			s[i] = 0;
 			f[i] = 0;
 		}
-		
-		fprintf(fire, "%d ", s[i]+f[i]);
 	}
 
 	// propagacao do fogo
 	do{
-		fprintf(fire, "\n%d ", t);
+		
 		fogoEspalhou = false;
 		
 		for(int w = 0 ; w < L*L ; w++){
 			
-
 			// avalia se tem arvore sem fogo
 			if(s[w] == 1 && f[w] == 0){
 				
@@ -95,7 +93,6 @@ int queimada(double p){
 					}
 				}
 			}
-			fprintf(fire, "%d ", s[w]+f[w]);
 		}
 		
 		t++;
