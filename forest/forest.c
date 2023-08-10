@@ -12,7 +12,6 @@ int s[L*L] = {0};			// sitio sem arvore (0) ou sitio com arvore (1)
 int f[L*L] = {0};			// sitio sem fogo (0) ou sitio com fogo (1)
 int mviz[L*L][4] = {0};		// matriz de vizinhanca (guarda o indice do sitio vizinho) = [inferior, superior, esquerda, direita]
 FILE *fire;
-FILE *forest;
 
 
 int sitio(int c, int waux);
@@ -22,11 +21,8 @@ int queimada(double p);
 void main(void){
 	
 	fire = fopen("./Output/fire.txt", "w");
-	fprintf(fire, "# Sitios que pegaram fogo a cada tempo");
-	
-	forest = fopen("./Output/forest.txt", "w");
-	fprintf(forest, "# Inicializacao da floresta (0 = sem arvore , 1 = com arvore , 2 = com fogo)\n");
-	fprintf(forest, "# sitio estado\n");
+	fprintf(fire, "# Sitios que pegaram fogo a cada tempo (0 = sem arvore , 1 = com arvore , 2 = com fogo)");
+	fprintf(fire, "# sitio estado\n");
 	
 	/*FILE *time;
 	time = fopen("time50.txt", "w");
@@ -45,7 +41,7 @@ void main(void){
 	}
 	
 	int t = queimada(p);
-	printf("Tempo %d\n", t);
+	printf("p %f t %d\n", p, t);
 	
 }
 	
@@ -66,6 +62,9 @@ int queimada(double p){
 			if(i < L){
 				f[i] = 1; 		// fogo nas arvores da primeira linha
 			}
+			else{
+				f[i] = 0;
+			}
 		}
 		else{
 			s[i] = 0;
@@ -82,15 +81,14 @@ int queimada(double p){
 		
 		for(int w = 0 ; w < L*L ; w++){
 			
-
-			// avalia se tem arvore sem fogo
-			if(s[w] == 1 && f[w] == 0){
+			// avalia se tem fogo
+			if(f[w] == 1){
 				
 				for(int v = 0 ; v < 4 ; v++){
 
-					//checa se algum vizinho tem fogo
-					if(f[mviz[w][v]] == 1){
-						f[w] = 1;
+					//checa se algum vizinho tem arvore sem fogo
+					if(f[mviz[w][v]] == 0 && s[mviz[w][v]] == 1){
+						f[mviz[w][v]] = 1;
 						fogoEspalhou = true;
 					}
 				}

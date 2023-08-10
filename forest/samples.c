@@ -10,7 +10,7 @@ void main(void){
 	
 	long seed = 1234567;
 	
-	for(int samp = 0 ; samp < 100 ; samp++){
+	for(int samp = 0 ; samp < 1000 ; samp++){
 		
 		char command[50];
 		sprintf(command, "forestP.exe %d", seed);
@@ -19,7 +19,7 @@ void main(void){
 		srand(seed);
 		
 		FILE *time;
-		time = fopen("./Output/time.txt", "a");
+		time = fopen("./Output/time150.txt", "a");
 		fprintf(time, "#Amostra %d seed %ld\n", samp, seed);
 		fclose(time);
 		printf("Amostra %d\n", samp);

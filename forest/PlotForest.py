@@ -19,7 +19,7 @@ def readFire(filename):
 
     with open(filename, 'r') as f:
     
-        lines = f.readlines()[1:]
+        lines = f.readlines()[2:]
         
         for line in lines:
             
@@ -87,10 +87,9 @@ def mediaAmostras(step, data):
 def tempoQueimada():
 
 
-    #L = [50, 80, 100, 120, 180]
-    L = [50]
+    L = [50, 100, 150]
     for l in L:
-        pout, tout = np.loadtxt(f'./Output/time.txt', unpack=True, comments='#')
+        pout, tout = np.loadtxt(f'./Output/time{l}.txt', unpack=True, comments='#')
     
         p = SeparaAmostras(pout, pout)
         t = SeparaAmostras(pout, tout)
@@ -143,7 +142,7 @@ def gifForest(estados):
 
 #time, sistema = readFire('./Output/fire.txt')
 
-#forestPlot(sistema[-1])
+#forestPlot(sistema[0])
 
 #gifForest(sistema)
     
