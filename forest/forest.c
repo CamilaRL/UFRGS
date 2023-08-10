@@ -7,12 +7,11 @@
 
 #define L 50
 
-
+// Inicializacao das variaveis
 int s[L*L] = {0};			// sitio sem arvore (0) ou sitio com arvore (1)
 int f[L*L] = {0};			// sitio sem fogo (0) ou sitio com fogo (1)
-int mviz[L*L][4] = {0};		// matriz de vizinhanca (guarda o indice do sitio vizinho) = [inferior, superior, esquerda, direita]
+int mviz[L*L][4] = {0};			// matriz de vizinhanca (guarda o indice do sitio vizinho) = [inferior, superior, esquerda, direita]
 FILE *fire;
-
 
 int sitio(int c, int waux);
 int queimada(double p);
@@ -23,10 +22,6 @@ void main(void){
 	fire = fopen("./Output/fire.txt", "w");
 	fprintf(fire, "# Sitios que pegaram fogo a cada tempo (0 = sem arvore , 1 = com arvore , 2 = com fogo)");
 	fprintf(fire, "# sitio estado\n");
-	
-	/*FILE *time;
-	time = fopen("time50.txt", "w");
-	fprintf(time, "# Tempo de simulação para diferentes p\n");*/
 	
 	int wviz;
 	double p = 0.6;
@@ -42,14 +37,15 @@ void main(void){
 	
 	int t = queimada(p);
 	printf("p %f t %d\n", p, t);
-	
 }
 	
 int queimada(double p){
 	
 	int fogoEspalhou;
 	int t = 0;
+	
 	fprintf(fire, "\n%d ", t);
+	
 	// inicializao de arvores aleatorias conforme p
 	for(int i = 0 ; i < L*L ; i++){
 		
@@ -58,7 +54,6 @@ int queimada(double p){
 		if(r < p){
 			
 			s[i] = 1;
-			
 			if(i < L){
 				f[i] = 1; 		// fogo nas arvores da primeira linha
 			}
@@ -95,7 +90,6 @@ int queimada(double p){
 			}
 			fprintf(fire, "%d ", s[w]+f[w]);
 		}
-		
 		t++;
 
 	}while(fogoEspalhou == true);
@@ -106,7 +100,13 @@ int queimada(double p){
 
 int sitio(int c, int waux){
 
-    if(c == 0){							//sobe
+	/*
+ 	Funcao para acessar um sitio a partir de outro
+  	Entrada:
+   		int c : para qual lado ir
+ 	*/
+
+    if(c == 0){						//sobe
 	
         if(waux < L){					// se estiver na primeira linha
             waux = waux - L + (L*L);
@@ -117,7 +117,7 @@ int sitio(int c, int waux){
     }
     else if(c == 1){					// desce
 
-        if(waux >= (L*L)-L){			// se estiver na última linha
+        if(waux >= (L*L)-L){				// se estiver na última linha
             waux = (waux%L);
         }
         else{
