@@ -55,7 +55,7 @@ void main(int argc, char *argv[]){
 	
 int queimada(double p){
 	
-	int fogoEspalhou;
+	bool fogoEspalhou;
 	int t = 0;
 	/*if(p > 0.60 && p < 0.61){
 		fprintf(fire, "\n%d ", t);

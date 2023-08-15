@@ -88,6 +88,12 @@ def tempoQueimada():
 
 
     L = [50, 100, 150]
+    
+    #L = ['150', 'R150']
+    #colors = ['green', 'green']
+    symbol = ['.', '^']
+    m = 0
+    
     for l in L:
         pout, tout = np.loadtxt(f'./Output/time{l}.txt', unpack=True, comments='#')
     
@@ -96,7 +102,8 @@ def tempoQueimada():
     
         p, t = mediaAmostras(p, t)
         
-        plt.scatter(p, t, label=f'L = {l}')
+        plt.scatter(p, t, marker=symbol[m], label=f'L = {l}')
+        #m = m + 1
         
     plt.axvline(x=0.5927, color='k', linestyle='--', label=r'$p_{c}$')
     plt.xlabel('p')
@@ -114,7 +121,7 @@ def run(frame, im, t):
     cmap = (mpl.colors.ListedColormap(['white', 'green', 'black']))
     im.set_array(frame)
     t += 1
-    plt.title('Forest Fire\n'+'p = 0.5'+f't = {t}')
+    plt.title('Forest Fire\n'+'p = 0.6')
 
 def gifForest(estados):
 
