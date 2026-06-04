@@ -1,0 +1,48 @@
+# 3d Two-Scale-Potential
+
+# ---------- Inicializando a simulação ---------------------
+units           lj                             #comprimentos (sigma), tempo (sigma,m,epsilon)), temp (epsilonkB) = comando define as unidades usadas na simulação
+atom_style      atomic                         #estilo básico que pode ser usado para potenciais simples, sem vínculos e cargas.
+dimension       3
+boundary        p p p                          #condições de contorno periódica.
+
+# ---------- Criando os átomos ---------------------
+
+read_data init.syst  #(Leitura do arquivo de topologia)
+
+velocity all create 0.60 87287 rot yes dist gaussian  # define temperatura e seed do gerador de velocidade
+
+
+# ---------- Definindo a interação interatômica ---------------------
+
+pair_style table linear 1000
+pair_coeff 1 1 force.table AA 4.5
+
+#minimize (útil para energias e forças altas. leva as partículas para a configuração de U mínimo local, próximo de ponto crítico)
+
+neighbor        0.3 bin
+neigh_modify    every 20 delay 0 check no
+
+# ---------- Ensemble ---------------------
+
+fix             1 all nvt temp 0.60 0.60 2 tchain 2     # Ti, Tf, Q
+timestep        0.001
+
+#---------- Função de distribuição radial ---------------------
+
+compute         myRDF all rdf 2000
+fix             3 all avetime 1 2000 2000 c_myRDF[] file tmp.data mode vector
+
+dump 1 all custom 200 dump.lammpstrj id type x y z vx vy vz # output file       #troquei 50 por 200
+
+#----------------Deslocamento quadrático médio------------------
+
+#variable t equal time
+#variable msd equal c_MSD[4]
+#compute                msd all msd com yes
+#fix             2 all avetime 100 10 100 c_msd file msd.out mode vector       #multipliquei por 10
+
+
+thermo_style    custom step temp pe ke etotal press vol atoms #especifica variáveis impressas no arquivo de log (ele contém toda a informação do sistema)
+thermo          2000                                    #a cada 2000 passos imprime valores acima
+run             1000000                                 #número de passos da simulação

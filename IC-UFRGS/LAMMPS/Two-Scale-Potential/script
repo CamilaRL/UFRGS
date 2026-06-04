@@ -1,0 +1,23 @@
+#!/bin/bash
+
+T=("0.20" "0.25" "0.30" "0.35" "0.40" "0.45" "0.50" "0.55" "0.60") #lista de temperaturas
+c=0.05
+
+for ((i=0; i<8; i++))
+do
+        lammps -in in.alan
+
+        OLD=${T[$i]}
+        NEW=${T[$i+1]}
+
+        FOLDER=$(printf "./CaseB/rho_100/T%.2f" "$OLD") #nome da pasta para salvar os arquivos
+
+        mkdir -p "$FOLDER"
+
+        cp ./log.lammps $FOLDER/log.lammps #copia o arquivo para a pasta da temperatura
+        cp ./dump.lammpstrj $FOLDER/dump.lammpstrj
+        cp ./tmp.data $FOLDER/tmp.data
+
+        sed -i "s/\b$OLD\b/$NEW/g" in.alan #substitui as temperaturas
+
+done

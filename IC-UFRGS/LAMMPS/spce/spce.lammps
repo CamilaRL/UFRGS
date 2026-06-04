@@ -1,0 +1,73 @@
+# water spce model
+
+#variable Ttarget	equal 1000.0
+#variable Tinit		equal 1.0
+variable samp		equal 0
+variable samp_init	equal 0
+
+log ./${samp}logT${Ttarget}.lammps
+
+# ---------- Inicializando a simulação ---------------------
+units           real                             #distancia (Angstroms), tempo (femptoseconds), temperatura (Kelvin)
+atom_style      full                           #considera moléculas com cargas
+dimension       3
+boundary        p p p                          #condições de contorno periódica.
+
+# ---------- Criando os átomos ---------------------
+
+#read_data init.syst  #(Leitura do arquivo de topologia)
+read_restart    ${samp_init}restart.waterT${Tinit}
+
+## alternate way to set charges - besides manually in data file ###
+group ox type 2
+group hy type 1
+set group ox charge -0.8476
+set group hy charge 0.4238
+
+velocity all create ${Tinit} 12345689 rot yes dist gaussian  # define temperatura e seed do gerador de velocidaded
+
+
+# ---------- Definindo a interação interatômica ---------------------
+
+### fonte: exemplo da documentação do LAMMPS
+
+pair_style lj/cut/coul/long 9.0 9.0
+pair_coeff 1 1 0.0 0.0		# H-H
+pair_coeff 1 2 0.0 0.0		# H-O
+pair_coeff 2 2 0.1553 3.166	# O-O
+
+pair_modify     tail yes			     #Analytic Long-range Tail corrections, for the LJ interactions
+
+kspace_style pppm 1.0e-4
+
+bond_style  harmonic
+bond_coeff  1 5000.0 1.0
+
+angle_style harmonic
+angle_coeff 1 500.0 109.4712
+
+dihedral_style	none				     #SPC/e has no dihedrals (quadruplets)
+improper_style	none				     #SPC/e has no improper quadruplets
+
+neighbor	0.2 bin  
+neigh_modify	every 20 delay 0 check no
+
+# ---------- Ensemble ---------------------
+
+fix rigid all shake 0.0001 20 0 b 1 a 1
+fix integrate all nvt temp ${Ttarget} ${Ttarget} 100.0
+
+#---------- Função de distribuição radial ---------------------
+
+compute myRDF all rdf 500 1 1 1 2 2 2
+fix 3 all ave/time 2 100 5000 c_myRDF[*] file ${samp}zhangT${Ttarget}.rdf mode vector
+
+dump waterdump all atom 5000 ${samp}dumpT${Ttarget}.lammpstrj
+
+#---------- Parametros de Simulação ---------------------
+thermo_style    custom step temp press etotal density atoms #especifica variáveis impressas no arquivo de log (ele contém toda a informação do sistema)
+thermo          1000                                     #a cada 1000 passos imprime valores acima
+timestep	0.01
+run             5000000                                 #número de passos da simulação
+
+write_restart ${samp}restart.waterT${Ttarget}

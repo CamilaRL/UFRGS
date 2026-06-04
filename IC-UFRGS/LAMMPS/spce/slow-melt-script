@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Avoid issues with "," and "." in floating point numbers
+LANGUAGE="en_US.UTF-8"
+LC_ALL="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_ADDRESS="en_US.UTF-8"
+LC_TELEPHONE="en_US.UTF-8"
+LC_NAME="en_US.UTF-8"
+LC_MEASUREMENT="en_US.UTF-8"
+LC_IDENTIFICATION="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_PAPER="en_US.UTF-8"
+LANG="en_US.UTF-8"
+
+
+
+T=("450" "400" "320") #lista de temperaturas
+#T=("1000" "800" "700" "600" "550" "500" "450" "400" "320")
+
+for ((i=0; i<6; i++))
+do
+        Tinit=${T[$i]}
+	Ttarget=${T[$i+1]}
+
+        mpirun -np 4 lmp -var Tinit $Tinit -var Ttarget $Ttarget -in spce.lammps
+
+done

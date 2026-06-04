@@ -1,0 +1,62 @@
+# 3d Lennard-Jones melt
+
+# ---------- Inicializando a simulação --------------------- 
+units		lj                             #comprimentos (sigma), tempo (sigma,m,epsilon)), temp (epsilon/kB) = comando define as unidades usadas na simulação
+atom_style	atomic                         #estilo básico que pode ser usado para potenciais simples, sem vínculos e cargas.
+dimension       3
+boundary        p p p                          #condições de contorno periódica.
+
+# ---------- Criando os átomos --------------------- 
+
+#lattice        fcc 0.8442                      #densidade 
+#region		box block 0 3 0 3 0 3   	# nome da região + tipo de caixa + dimensões
+#create_box	1 box          			# número de tipos de átomos na região
+#create_atoms	1 box                           #criação átomos de um tipo dentro da caixa de simulação.
+
+#mass		1 1.0
+
+read_data init.syst  #(Leitura do arquivo de topologia)
+
+velocity all create 1.5 87287 rot yes dist gaussian  # define temperatura e seed do gerador de velocidade
+
+
+# ---------- Definindo a interação interatômica --------------------- 
+
+pair_style	lj/cut 2.5        #define o potencial LJ 
+pair_coeff	1 1 1.0 1.0 2.5    #particulas de mesmo tipo interagem com os parâmetros sigma e epsilon
+
+#minimize (útil para energias e forças altas. leva as partículas para a configuração de U mínimo local, próximo de ponto crítico)
+
+neighbor	0.3 bin  
+neigh_modify	every 20 delay 0 check no
+              
+# ---------- Ensemble --------------------- 
+
+fix		1 all nvt temp 0.1 0.5 100                       
+
+#---------- Função de distribuição radial --------------------- 
+
+compute myRDF all rdf 2000 cutoff 2.5
+fix myRDF all ave/time 1 2000 2000 c_myRDF[*] file tmp.data mode vector
+
+dump 1 all custom 50 dump.lammpstrj id type x y z vx vy vz # output file
+
+#----------------Deslocamento quadrático médio------------------
+
+#variable t equal time
+#variable msd equal c_MSD[*]
+#compute MSD all msd com yes
+#fix MSD all print 2000 “${t} ${msd}” file msd.lammps screen no
+
+variable t equal time
+variable msd equal c_MSD[4]
+compute		msd all msd com yes
+#fix             msd all ave/time 10 1 200 c_msd[*] file msd.out mode vector
+fix             msd all ave/time 10 1 200 c_msd file msd.out mode vector 
+
+
+thermo_style    custom step temp pe ke etotal press vol atoms #especifica variáveis impressas no arquivo de log (ele contém toda a informação do sistema) 
+thermo		50                                #a cada 50 passos imprime valores acima
+#run_style      verlet                              #algoritmo de velocidade
+run		150000                         #número de passos da simulação
+

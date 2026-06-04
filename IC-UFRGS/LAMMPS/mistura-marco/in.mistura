@@ -1,0 +1,74 @@
+# 3d Lennard-Jones melt
+
+log ./results/c_${x}/P_${press}/T_${temp}/log.dat
+
+# ---------- Inicializando a simulação ---------------------
+units           lj                             #comprimentos (sigma), tempo (sigma,m,epsilon)), temp (epsilon/kB) = comando define as unidades usadas na simulação
+atom_style      atomic                         #estilo básico que pode ser usado para potenciais simples, sem vínculos e cargas.
+dimension       3
+boundary        p p p                          #condições de contorno periódica.
+
+# ---------- Criando os átomos ---------------------
+
+read_data init.syst  #(Leitura do arquivo de topologia)
+
+velocity all create 0.42 87287 rot yes dist gaussian  # define temperatura e seed do gerador de velocidade
+
+# ---------- Definindo grupo de atomos --------------------
+
+group water     type 1
+group solute    type 2
+
+# ---------- Definindo a interação interatômica ---------------------
+
+pair_style      table linear 1000
+pair_coeff      1 1 force.table AA 5.0
+pair_coeff      1 2 force.table AB 5.0
+pair_coeff      2 2 force.table BB 5.0
+
+delete_atoms overlap 0.1 all all
+
+#minimize (útil para energias e forças altas. leva as partículas para a configuração de U mínimo local, próximo de ponto crítico)
+
+neighbor        0.3 bin
+neigh_modify    every 20 delay 0 check no
+
+# ---------- Ensemble ---------------------
+
+fix             1 all npt temp ${temp} ${temp} 0.5 iso ${press} ${press} 5      # Ti, Tf, Pi, Pf
+timestep        0.005
+
+# ---------- Propriedades termodinamicas -------------------
+
+variable Density equal density
+variable Enthalpy equal enthalpy
+fix             2 all ave/time 1 1000 1000 c_thermo_temp c_thermo_press v_Density v_Enthalpy start 1000000 file ./results/c_${x}/P_${press}/T_${temp}/averages.dat
+
+# ---------- Função de distribuição radial ---------------------
+
+compute         myRDF all rdf 2000 1 1 1 2 2 2  # cria histograma para cada par itype jtype
+fix             3 all ave/time 1 500 1000 c_myRDF[*] file ./results/c_${x}/P_${press}/T_${temp}/rdf.data mode vector
+
+# --------- Trajetorias das particulas ---------------------
+
+dump trj all custom 1000 ./results/c_${x}/P_${press}/T_${temp}/dump.lammpstrj id type x y z vx vy vz # output file
+dump_modify trj sort id
+
+# --------- Interacao da entre particulas ---------------------
+
+thermo_style    custom step temp pe ke etotal press density enthalpy atoms      #especifica variáveis impressas no arquivo de log (ele contém toda a informação do sistema)
+thermo          1000                                                            #a cada 2000 passos imprime valores acima
+run             2000000                                                         #número de passos da simulação
+dump 1 all custom 200 dump.lammpstrj id type x y z vx vy vz # output file       #troquei 50 por 200
+
+#----------------Deslocamento quadrático médio------------------
+
+#variable t equal time
+#variable msd equal c_MSD[4]
+#compute                msd all msd com yes
+#fix             2 all avetime 100 10 100 c_msd file msd.out mode vector       #multipliquei por 10
+
+
+thermo_style    custom step temp pe ke etotal press vol atoms #especifica variáveis impressas no arquivo de log (ele contém toda a informação do sistema)
+thermo          2000                                    #a cada 2000 passos imprime valores acima
+run             1000000                                 #número de passos da simulação

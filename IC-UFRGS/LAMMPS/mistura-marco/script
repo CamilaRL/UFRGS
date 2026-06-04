@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Avoid issues with "," and "." in floating point numbers
+LANGUAGE="en_US.UTF-8"
+LC_ALL="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_ADDRESS="en_US.UTF-8"
+LC_TELEPHONE="en_US.UTF-8"
+LC_NAME="en_US.UTF-8"
+LC_MEASUREMENT="en_US.UTF-8"
+LC_IDENTIFICATION="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_PAPER="en_US.UTF-8"
+LANG="en_US.UTF-8"
+
+
+
+T=("0.30" "0.35" "0.40" "0.45" "0.50" "0.55" "0.60") #lista de temperaturas
+x=0.05
+press=0.13
+
+for ((i=0; i<8; i++))
+do
+        temp=${T[$i]}
+
+        FOLDER=$(printf "./results/c_0.05/P_0.13/T_%.2f" "$temp") #nome da pasta para salvar os arquivos
+
+        mkdir -p "$FOLDER"
+
+        lammps -var x $x -var press $press -var temp $temp -in in.mistura
+
+done
