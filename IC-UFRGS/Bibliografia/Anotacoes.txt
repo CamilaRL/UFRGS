@@ -1,0 +1,30 @@
+
+	water-phase-diagram-cheng-2021
+
+Main point : it is not certain that all thermodynamically phases of water was found and that coexisting curves were correctly defined.
+
+Questions from abstract (what to look in the text):
+
+1 - How does 50 ice structures exists? What are their conditions?
+2 - How do we determine the phase boudaries?
+3 - What is nuclear fluctuations?
+4 - What is proton disroder?
+5 - How to test the quantum-mechanical calculations with thermodynamics?
+
+R1 - pairs of proton-disordered and proton-ordered forms: Ih - XI, III - IX, ... (reference 32 and 34)
+R2 - Combining electronic structure methods with free-energy is computationaly expensive.
+R3 - 
+R4 - they are related with ice proton-bounds network. When disordered, MD simulations do not equilibrate and enthalpies of differente ice phases become too different of each other, making free-energy calculations more difficult.
+
+Further reasearch:
+
+- Machine-Learning Potentials (MLP) : uses data to model atomic interactions intead of quantum-mechanical calculations
+- Density-Functional Theory (DFT)
+
+
+
+
+
+Dúvidas:
+- Pq o projetor a' foi somatório e pq o projetos dos estados foi integral? Pq ele tem que ser contínuo?
+- Pq ele fala em segmentos se ele tá tratando como onda?
